@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Launchpad</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --card:#ffffff; --ink:#1f2733; --muted:#5b6675;
+    --navy:#0E4D92; --line:#e3e8ef; --chip:#eef3f9; --shadow:0 1px 2px rgba(16,24,40,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#101418; --card:#1a2027; --ink:#e8edf3; --muted:#9aa7b5;
+           --navy:#6ea8dc; --line:#2a323c; --chip:#232b35; --shadow:0 1px 2px rgba(0,0,0,.4); }
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink);
+       font:15px/1.45 "Segoe UI", Calibri, system-ui, sans-serif;}
+  .wrap{max-width:1180px; margin:0 auto; padding:36px 28px 60px;}
+  header{display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; margin-bottom:6px;}
+  h1{font-size:22px; font-weight:650; margin:0;}
+  #date{color:var(--muted); font-size:14px;}
+  #search{margin-left:auto; width:260px; padding:8px 12px; font:inherit;
+          border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink);}
+  #search:focus{outline:2px solid var(--navy); outline-offset:-1px;}
+  h2{font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);
+     margin:30px 0 12px; font-weight:600;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:12px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px;
+        padding:14px 16px; cursor:pointer; box-shadow:var(--shadow);
+        display:flex; flex-direction:column; gap:4px; min-height:92px;
+        transition:transform .08s ease, border-color .08s ease;}
+  .card:hover, .card:focus-visible{transform:translateY(-2px); border-color:var(--navy); outline:none;}
+  .card .top{display:flex; align-items:center; gap:10px;}
+  .card .ico{font-size:20px; line-height:1;}
+  .card .name{font-weight:600; font-size:15px;}
+  .card .desc{color:var(--muted); font-size:13px;}
+  .card .foot{margin-top:auto; display:flex; gap:6px; align-items:center; padding-top:6px;}
+  .chip{font-size:11px; color:var(--muted); background:var(--chip); border-radius:6px; padding:2px 8px;}
+  .hidden{display:none !important;}
+  footer{margin-top:44px; color:var(--muted); font-size:12px;}
+  footer a{color:var(--navy);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Launchpad</h1>
+    <span id="date"></span>
+    <input id="search" type="search" placeholder="Filter…  ( / )" autocomplete="off">
+  </header>
+  <div id="sections"></div>
+  <footer>To add or change a block, edit the SECTIONS list at the top of
+    <a href="https://github.com/gwaterhouse8/gwaterhouse8.github.io/edit/main/index.html">index.html</a> in the repo.</footer>
+</div>
+
+<script>
+/* ================= EDIT YOUR BLOCKS HERE =================
+   Block fields: icon, name, desc, url.                     */
+
+const SECTIONS = [
+  { title: "Work", blocks: [
+    { icon:"🔥", name:"Forge",              desc:"CRM dashboard",                 url:"http://159.65.233.101:8081" },
+    { icon:"📊", name:"Live Stats",         desc:"Team sourcing stats page",      url:"http://159.65.233.101:8081/stats" },
+    { icon:"📄", name:"Staffing Generator", desc:"CIM / teaser → staffing email", url:"http://159.65.233.101:8081/staffing" },
+    { icon:"☁️", name:"DealCloud",          desc:"CRM of record",                 url:"https://alpineinvestors.dealcloud.com" },
+    { icon:"✉️", name:"Lemlist",            desc:"Outreach campaigns",            url:"https://app.lemlist.com" },
+    { icon:"🔎", name:"Grata",              desc:"Company search",                url:"https://search.grata.com" },
+    { icon:"📦", name:"Box",                desc:"Deal files",                    url:"https://app.box.com" },
+  ]},
+  { title: "Startup", blocks: [
+    { icon:"📘", name:"Research Doc",   desc:"Living analysis doc",     url:"https://docs.google.com/document/d/1LzawmappKUFQSAg3QYs-XV9QyC-OHvArMudwC5uLndA/edit" },
+    { icon:"🗂️", name:"Knowledge Base", desc:"Drive folder",            url:"https://drive.google.com/drive/folders/1ov_SQ9Fpvjl28216f6ZD82X72Y7Wi7Q6" },
+    { icon:"🧾", name:"Evidence Index", desc:"Master index of sources", url:"https://docs.google.com/document/d/1C8TodX-pjwgWMzFa1QIdIGdyYNQ-rhnF3sJNIsilVyQ/edit" },
+  ]},
+  { title: "Personal", blocks: [
+    { icon:"🤝", name:"Network Intro",        desc:"LinkedIn intro app",     url:"https://networkintro.167.71.31.0.sslip.io" },
+    { icon:"✈️", name:"Dad's Visit — Aug",    desc:"Trip hub doc",           url:"https://docs.google.com/document/d/163fgFDLgEEP-rnD1P19lHzv5VmZxk_dJ7quCXpC9ksM/edit" },
+    { icon:"🛂", name:"Visa Bulletin Watcher", desc:"GitHub repo",           url:"https://github.com/gwaterhouse8/visa-bulletin-watcher" },
+    { icon:"🐙", name:"GitHub",               desc:"All repos",              url:"https://github.com/gwaterhouse8?tab=repositories" },
+  ]},
+];
+
+/* ================= no need to edit below ================= */
+
+function chipFor(url){
+  try { return new URL(url).hostname.replace(/^www\./,""); } catch(e){ return ""; }
+}
+
+function renderSection(sec){
+  const wrap = document.createElement("section");
+  const h = document.createElement("h2");
+  h.textContent = sec.title;
+  const grid = document.createElement("div");
+  grid.className = "grid";
+  for (const b of sec.blocks){
+    const card = document.createElement("div");
+    card.className = "card";
+    card.tabIndex = 0;
+    card.dataset.url = b.url;
+    card.dataset.q = (b.name + " " + b.desc).toLowerCase();
+
+    const top = document.createElement("div"); top.className = "top";
+    const ico = document.createElement("span"); ico.className = "ico"; ico.textContent = b.icon || "🔗";
+    const name = document.createElement("span"); name.className = "name"; name.textContent = b.name;
+    top.append(ico, name);
+
+    const desc = document.createElement("div"); desc.className = "desc"; desc.textContent = b.desc || "";
+
+    const foot = document.createElement("div"); foot.className = "foot";
+    const chip = document.createElement("span"); chip.className = "chip"; chip.textContent = chipFor(b.url);
+    foot.append(chip);
+
+    card.append(top, desc, foot);
+    grid.append(card);
+  }
+  wrap.append(h, grid);
+  return wrap;
+}
+
+const host = document.getElementById("sections");
+for (const sec of SECTIONS) host.append(renderSection(sec));
+
+/* one delegated handler — no inline on* attributes */
+host.addEventListener("click", e => {
+  const card = e.target.closest(".card");
+  if (card) window.location.href = card.dataset.url;
+});
+host.addEventListener("keydown", e => {
+  if (e.key === "Enter"){
+    const card = e.target.closest(".card");
+    if (card) window.location.href = card.dataset.url;
+  }
+});
+
+/* filter */
+const searchEl = document.getElementById("search");
+document.addEventListener("keydown", e => {
+  if (e.key === "/" && document.activeElement !== searchEl){ e.preventDefault(); searchEl.focus(); }
+});
+searchEl.addEventListener("input", () => {
+  const q = searchEl.value.trim().toLowerCase();
+  document.querySelectorAll("#sections section").forEach(sec => {
+    let any = false;
+    sec.querySelectorAll(".card").forEach(c => {
+      const show = !q || c.dataset.q.includes(q);
+      c.classList.toggle("hidden", !show);
+      if (show) any = true;
+    });
+    sec.classList.toggle("hidden", !any);
+  });
+});
+
+document.getElementById("date").textContent =
+  new Date().toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" });
+</script>
+</body>
+</html>

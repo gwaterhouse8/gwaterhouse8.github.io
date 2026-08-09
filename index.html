@@ -26,6 +26,17 @@
   #edit{font-size:13px; color:var(--navy); text-decoration:none; border:1px solid var(--line);
         border-radius:8px; padding:7px 12px; background:var(--card); white-space:nowrap;}
   #edit:hover{border-color:var(--navy);}
+  #lock{font-size:14px; border:1px solid var(--line); border-radius:8px; padding:6px 11px;
+        background:var(--card); cursor:pointer; color:var(--ink);}
+  #lock:hover{border-color:var(--navy);}
+  .unlock{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:12px 0 0;}
+  .unlock input[type=password]{padding:8px 12px; font:inherit; border:1px solid var(--line);
+        border-radius:8px; background:var(--card); color:var(--ink); width:220px;}
+  .unlock label{font-size:13px; color:var(--muted); display:flex; gap:6px; align-items:center;}
+  .unlock button{font:inherit; font-size:13px; padding:8px 14px; border:1px solid var(--line);
+        border-radius:8px; background:var(--card); color:var(--navy); cursor:pointer;}
+  .unlock button:hover{border-color:var(--navy);}
+  #unlockErr{font-size:13px; color:#c0392b;}
   h2{font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);
      margin:30px 0 12px; font-weight:600;}
   .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:12px;}
@@ -53,7 +64,14 @@
     <input id="search" type="search" placeholder="Filter…  ( / )" autocomplete="off">
     <a id="edit" href="https://github.com/gwaterhouse8/gwaterhouse8.github.io/edit/main/index.html"
        target="_blank" rel="noopener" title="Add or remove blocks — one line each in SECTIONS">✏️ Edit</a>
+    <button id="lock" title="Private section">🔒</button>
   </header>
+  <div id="unlockPanel" class="unlock hidden">
+    <input id="passIn" type="password" placeholder="Passphrase" autocomplete="off">
+    <button id="unlockBtn">Unlock</button>
+    <label><input id="rememberK" type="checkbox" checked> remember this device</label>
+    <span id="unlockErr"></span>
+  </div>
   <div id="sections"></div>
   <footer>To add or change a block, edit the SECTIONS list at the top of
     <a href="https://github.com/gwaterhouse8/gwaterhouse8.github.io/edit/main/index.html">index.html</a> in the repo.</footer>
@@ -83,6 +101,14 @@ const SECTIONS = [
     { icon:"🐙", name:"GitHub",               desc:"All repos",              url:"https://github.com/gwaterhouse8?tab=repositories" },
   ]},
 ];
+
+/* Private section — AES-256-GCM ciphertext; the passphrase is NOT in this file.
+   To change its contents, re-encrypt and replace this blob. */
+const PRIVATE_ENC = {
+  salt: "QOn8eF4AKdvHtYio6vPAOw==",
+  iv:   "JfAZi7tmKwzYtUF6",
+  ct:   "jPIwzRncQYzN7lax05RTsxWFJyAK5iiEm2ol4bqiDl6KpADeSn/Hguya3MDpvWzsZJPGGyLgzk5DYn/FARLFrHRHDz7PyUj/JRa3mwjEKSc3Oqd6624XT1IV7P0QLg7I4eUl5ModMBtJyrNGbghAnfT/UI71U8utZh9zDtvALUGnFbcUjn1OWJtSJAWHR3EerlYPw26Xc158ARvsXqPjQVPnmFzUouP9gHWTWulv2AaaJIV2gLMYhz6quiLaYHRDCKPAm+ceIE9Tjcx7hsSB9kW826g84VJbeG0E/uYWkgV7WuDs+UBILYnku1BpRD4NieuwW4bIkkgmWLRwsHuden7uZmlDyJr1l8fI+nnempQXVjjSzzdHleuIeORm1JDvJ7HN/FBbet/l+pnVNbc1NlIaeNLvaCv3KLegwQ6FiKwj5grTwklN8BDsVzqdmEuH3GLYVUUCtNWNoSpBtbPyNwuoLNL7S+FalbfJdKpADXx7waznFkJUBeFn7s31sMrrTz6nOeVWJ9vX7mY="
+};
 
 /* ================= no need to edit below ================= */
 
@@ -153,6 +179,67 @@ searchEl.addEventListener("input", () => {
     });
     sec.classList.toggle("hidden", !any);
   });
+});
+
+/* ---- private section: decrypt-in-browser (WebCrypto) ---- */
+const lockBtn = document.getElementById("lock");
+const panel = document.getElementById("unlockPanel");
+const passIn = document.getElementById("passIn");
+const remember = document.getElementById("rememberK");
+const unlockErr = document.getElementById("unlockErr");
+let privateOn = false;
+
+const b64d = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function keyFromPass(pass){
+  const km = await crypto.subtle.importKey("raw", new TextEncoder().encode(pass), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    {name:"PBKDF2", salt:b64d(PRIVATE_ENC.salt), iterations:300000, hash:"SHA-256"},
+    km, {name:"AES-GCM", length:256}, true, ["decrypt"]);
+}
+async function decryptPrivate(key){
+  const pt = await crypto.subtle.decrypt({name:"AES-GCM", iv:b64d(PRIVATE_ENC.iv)}, key, b64d(PRIVATE_ENC.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+function showPrivate(secs){
+  for (const s of secs){ const el = renderSection(s); el.classList.add("psec"); host.append(el); }
+  privateOn = true; lockBtn.textContent = "🔓";
+  panel.classList.add("hidden"); passIn.value = ""; unlockErr.textContent = "";
+}
+function hidePrivate(){
+  document.querySelectorAll(".psec").forEach(e => e.remove());
+  privateOn = false; lockBtn.textContent = "🔒";
+}
+async function tryUnlock(){
+  unlockErr.textContent = "";
+  try{
+    const key = await keyFromPass(passIn.value.trim());
+    const secs = await decryptPrivate(key);
+    if (remember.checked){
+      const raw = await crypto.subtle.exportKey("raw", key);
+      localStorage.setItem("lp.k", btoa(String.fromCharCode(...new Uint8Array(raw))));
+    }
+    showPrivate(secs);
+  } catch(e){ unlockErr.textContent = "Wrong passphrase"; }
+}
+/* 🔒 click: if this device holds a remembered key, one click reveals; else ask.
+   Never auto-shows on page load (screen-share safe). 🔓 or Esc hides again. */
+lockBtn.addEventListener("click", async () => {
+  if (privateOn){ hidePrivate(); return; }
+  const saved = localStorage.getItem("lp.k");
+  if (saved){
+    try{
+      const key = await crypto.subtle.importKey("raw", b64d(saved), {name:"AES-GCM"}, false, ["decrypt"]);
+      showPrivate(await decryptPrivate(key));
+      return;
+    } catch(e){ localStorage.removeItem("lp.k"); }
+  }
+  panel.classList.toggle("hidden");
+  if (!panel.classList.contains("hidden")) passIn.focus();
+});
+document.getElementById("unlockBtn").addEventListener("click", tryUnlock);
+passIn.addEventListener("keydown", e => { if (e.key === "Enter") tryUnlock(); });
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape"){ hidePrivate(); panel.classList.add("hidden"); }
 });
 
 document.getElementById("date").textContent =

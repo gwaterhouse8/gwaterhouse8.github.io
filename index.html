@@ -23,6 +23,9 @@
   #search{margin-left:auto; width:260px; padding:8px 12px; font:inherit;
           border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink);}
   #search:focus{outline:2px solid var(--navy); outline-offset:-1px;}
+  #edit{font-size:13px; color:var(--navy); text-decoration:none; border:1px solid var(--line);
+        border-radius:8px; padding:7px 12px; background:var(--card); white-space:nowrap;}
+  #edit:hover{border-color:var(--navy);}
   h2{font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);
      margin:30px 0 12px; font-weight:600;}
   .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:12px;}
@@ -48,6 +51,8 @@
     <h1>Launchpad</h1>
     <span id="date"></span>
     <input id="search" type="search" placeholder="Filter…  ( / )" autocomplete="off">
+    <a id="edit" href="https://github.com/gwaterhouse8/gwaterhouse8.github.io/edit/main/index.html"
+       target="_blank" rel="noopener" title="Add or remove blocks — one line each in SECTIONS">✏️ Edit</a>
   </header>
   <div id="sections"></div>
   <footer>To add or change a block, edit the SECTIONS list at the top of
@@ -65,7 +70,6 @@ const SECTIONS = [
     { icon:"📄", name:"Staffing Generator", desc:"CIM / teaser → staffing email", url:"http://159.65.233.101:8081/staffing" },
     { icon:"☁️", name:"DealCloud",          desc:"CRM of record",                 url:"https://alpineinvestors.dealcloud.com" },
     { icon:"✉️", name:"Lemlist",            desc:"Outreach campaigns",            url:"https://app.lemlist.com" },
-    { icon:"📦", name:"Box",                desc:"Deal files",                    url:"https://app.box.com" },
   ]},
   { title: "Startup", blocks: [
     { icon:"📘", name:"Research Doc",   desc:"Living analysis doc",     url:"https://docs.google.com/document/d/1LzawmappKUFQSAg3QYs-XV9QyC-OHvArMudwC5uLndA/edit" },

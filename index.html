@@ -79,7 +79,10 @@
 
 <script>
 /* ================= EDIT YOUR BLOCKS HERE =================
-   Block fields: icon, name, desc, url.                     */
+   Block fields: icon, name, desc, url.
+   For an app that only lives on this machine, use `path` instead of `url`
+   (browsers block file:// links from an https page) — clicking copies the
+   path so you can paste it straight into the address bar.                */
 
 const SECTIONS = [
   { title: "Work", blocks: [
@@ -101,9 +104,9 @@ const SECTIONS = [
 /* Private section — AES-256-GCM ciphertext; the passphrase is NOT in this file.
    To change its contents, re-encrypt and replace this blob. */
 const PRIVATE_ENC = {
-  salt: "uENVrsRNT91DRdhqjE+tSw==",
-  iv:   "bIb61pUAe0jyqjqS",
-  ct:   "DE8xCqsVh3V7W304a3fmtweyBefhXQ0YXW7R0W4a8fVb+bd9D51uADjZ8GaFganJAWgDkqH/fHnWG8hpdqCCphZVX9aifeHV3DgGmiJDWzM3zm0V/3VVvcSOrOGL/yKpGkkZaFxN2nnvoRJyIDI+Cd4lcpMwotUAOaN1zaV6YOq8Kza9j4jrD0Zm6pvvMp0jhRov53Ri6rnQcx7+PbNXpsHwYVIcLedLHF1uRMEfMw+ZMyuMKRxXSRDX9LUwAVSSnC94pUlCUgbzA32HsOwIN4JBn/N9qL9AdmZDBf2H1P4CQ/jPJTSuf530/N1DTUHZX781Vxe28htBip1jrxFVIM2Kl+g20SzH4v6H2AQHLp+dHkIFvfUNaD2OtLaLUA+rUlYRn18FNt3bwusBhEog6+uKBiLdxMMDnxBXABlEI6nnl+ow8TqKhizl5KUhVPVgneXt4DpUNhkIlJ5OiZcF+KA2UquG6MeZfVPDxYVFlXs1K0NzDx+nm/OIjtfvh2Kreyxlx5czbk2ZR6m6seDFOdMOIYoHZmU/KjBSrr871dP4K00rfO2gepDYXODokGxOEJkP31G0EJ6s+jig0xlPzCEZXubnZMQLFUe65V6FH9+SPmL8Z0L/jnhRg7ZFxK5ZU0YeCER8bMJXHUddKhLW/4lJKOvokhD4xe1EvKqacx5vuEnQcSdXu6SQKpOQsQ8hIx6IwPpeugDqJiFjnqme/oFLF7eRp2ZEfZ9itvNIMKr5pC6hmb3/6RTK2/uhnXqGPB5YlpqlfmjhE81hVRKopobdqD0af6oXvYKO6l5sx9wPedflldMpgO7MFRws+aIiGL5LlrPbnS1D2INIXJ1F60r6SiSP3LNfEbZBijfM3O/1/51RBagUHakewK66Vkjreht8GeNLdfKVSVX6MFU/1lhwAa3BVBzromTaTvEs/BfvWFPJ99hc6KQHaLj9zV3/kFuWKMuxlpEaJ1zNd4i/8rJ5Zsh291qzvs7UI4Hsc68beLE="
+  salt: "P3G8h0amS4PODXPwYyZuGA==",
+  iv:   "dX1njJuYfdKov6xB",
+  ct:   "LkBjrk2G4zGs2CK94aBDN5CzUPjeZ/tuPxT145Y9RLspyX77oX6uLR6SJzREdduQd3KREoG/hN81vVdA86zFh049Bu3nkUW2Q0n4jJgZiKE4wVVeHZbyoiiY7YKBqZIo1PiYGi0h4/70p7CnXRKPi0Vp19MLUSqUcJ0K3oumO3R6H3Y0VVLdnz2/j5BteR2ASVpXMQ6aK4LvK/Ts+o4MN1SdYr35Ewz05HBxTQ/oTgYUoOVS9pTVVhpZX932IyqWQg5NKB2O8WiNX4WWgqjDo1HbJPMRcudgjo5vAsLvOvUtAdScXftnxdRRMo5WqZdFeNAh6WGF+++Pio6S9H7etCRideXf6bVBAt1OFtXbjOv2pqSziOlw+2/2HEJmcU0DSjXkvQdnyyY55+7Dys1EQDyIHJS4UPLHfovzcnof6l1ohSSqW8uHUYiKCU+OgenzUmu3YmWW3TS53ZSDRubCqA/4i0GUbYTx9zcmXtPJ460GR1kaWWQzmDkB51VL2DIwm59osLqC/+0MQ8vhGR5CJHYzx0R8WJogbghTg6azfZBSU9ZjltUEhrcECePpfMt15/nod3j0hw9zQthHUw9AqxWLRx2rHD6cMcWzxqeIiuRo2mFg7VIb3Zjyw9aFv0G1shPNBKX2167RkAx++9XHEAorapgEKAbSs3EQZ1iCGUXhG3h0NE4k+faN9jlFl/iXb9orCNbYeJHqaLV20vG7a1VzdwJNcM/xMuWwYDZLEclscHbtezgjENSI9Cyw08o53BYF/iuSymnP1iq14q18v9OgjELVoNS9rPUm5Lb5eCURYSYRkXXY5b/hgBQfXuza8GcxlqqswNxmtZSmtlqoqhLRJEiXUM9Mh5kzaT4FQ4L/aGpba7pw3syWflnFP+s6X/gJBtsj1KjY82hNBqfh+HL2OBWEFIo+V4DpgtPaka8V1eB9KoIh9NSf2Q7xvcxdRruXuOyQinuwh7nYBigTHXGJ1jk9oE+hs+vhd4kgZXFeW+CsnKvjwtcfiPTelh17jtkKvdqC5jh+mn6urUe8aHMJA5d/Vwefr64q7QqnB2vpN2HuUk+LNgLVYOJILwoxyz22W3TjWx5epR4U/yVwjYOFrCpkn/1A/b0wbkfK+Xqu6cL5CdC1y52Fg+N+IsohttZ+6ia3mGEaHMZnrLgKknhbD838JHOpIe9eVwzRMP5gX/vkbwpXKq0g91mEC09uypSE+4mVbsmU1TLmydB3uCw2oIW3cA+PQD5qn9btJjuOe+WxGC0WIAw23fqhqwlLWEul7D6t/UmB0Qc5J5k7XW0j325BHa/WFjCL5dnyMmJUcV5v8nOPdw=="
 };
 
 /* ================= no need to edit below ================= */
@@ -122,7 +125,8 @@ function renderSection(sec){
     const card = document.createElement("div");
     card.className = "card";
     card.tabIndex = 0;
-    card.dataset.url = b.url;
+    card.dataset.url = b.url || "";
+    if (b.path) card.dataset.path = b.path;
     card.dataset.q = (b.name + " " + b.desc).toLowerCase();
 
     const top = document.createElement("div"); top.className = "top";
@@ -133,7 +137,8 @@ function renderSection(sec){
     const desc = document.createElement("div"); desc.className = "desc"; desc.textContent = b.desc || "";
 
     const foot = document.createElement("div"); foot.className = "foot";
-    const chip = document.createElement("span"); chip.className = "chip"; chip.textContent = chipFor(b.url);
+    const chip = document.createElement("span"); chip.className = "chip";
+    chip.textContent = b.path ? "on this PC — click to copy path" : chipFor(b.url);
     foot.append(chip);
 
     card.append(top, desc, foot);
@@ -147,7 +152,22 @@ const host = document.getElementById("sections");
 for (const sec of SECTIONS) host.append(renderSection(sec));
 
 /* one delegated handler — no inline on* attributes; opens links in a NEW tab */
-function openCard(card){ window.open(card.dataset.url, "_blank", "noopener"); }
+async function copyPath(card){
+  const chip = card.querySelector(".chip");
+  const was = chip.textContent;
+  try{
+    await navigator.clipboard.writeText(card.dataset.path);
+    chip.textContent = "copied — paste in address bar";
+  } catch(e){
+    chip.textContent = "copy blocked — path in console";
+    console.log(card.dataset.path);
+  }
+  setTimeout(() => { chip.textContent = was; }, 2600);
+}
+function openCard(card){
+  if (card.dataset.path){ copyPath(card); return; }
+  window.open(card.dataset.url, "_blank", "noopener");
+}
 host.addEventListener("click", e => {
   const card = e.target.closest(".card");
   if (card) openCard(card);

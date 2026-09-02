@@ -1,0 +1,19 @@
+{
+  "note": "Daily open/close for the tracked calls on gwaterhouse8.github.io. Written by the daily-stock-review routine; do not hand-edit.",
+  "updated": "2026-09-02T08:27:14-04:00",
+  "tickers": ["EME", "FIX", "FTDR", "TTAN"],
+  "series": {
+    "FTDR": [
+      {"d": "2026-09-01", "o": 79.93, "c": 79.51, "h": 80.54, "l": 78.47, "v": 490800}
+    ],
+    "FIX": [
+      {"d": "2026-09-01", "o": 1518.73, "c": 1554.37, "h": 1557.27, "l": 1511.91, "v": 349500}
+    ],
+    "EME": [
+      {"d": "2026-09-01", "o": 730.25, "c": 735.25, "h": 738.02, "l": 722.08, "v": 354500}
+    ],
+    "TTAN": [
+      {"d": "2026-09-01", "o": 97.19, "c": 95.45, "h": 98.69, "l": 94.65, "v": 810900}
+    ]
+  }
+}

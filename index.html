@@ -187,6 +187,36 @@ const REVIEWS = [
       { d: "2026-09-01", p: 79.51 },
     ],
   },
+  {
+    ticker: "FIX",
+    company: "Comfort Systems USA",
+    exchange: "NYSE",
+    call: "Avoid",
+    pitched: "2026-09-01",
+    entry: 1554.37,
+    entryNote: "1 Sep 2026 close",
+    fair: "$700–790",
+    thesis: "16.5% op margin vs a 7.7% 10-yr average, 59% of revenue in one end market, at 4.7× sales. Even the bull case sits below the price.",
+    url: "https://claude.ai/code/artifact/4be594e7-2d49-4e87-83c6-fcb9209aa912",
+    marks: [
+      { d: "2026-09-01", p: 1554.37 },
+    ],
+  },
+  {
+    ticker: "EME",
+    company: "EMCOR Group",
+    exchange: "NYSE",
+    call: "Hold",
+    pitched: "2026-09-01",
+    entry: 735.25,
+    entryNote: "1 Sep 2026 close",
+    fair: "$559 base",
+    thesis: "The better half of the data-centre trade: half FIX's multiple, a quarter of the concentration, cleaner cash. Bull case clears the price.",
+    url: "https://claude.ai/code/artifact/9163822f-0ab5-4d0e-9aa9-3c54e249f579",
+    marks: [
+      { d: "2026-09-01", p: 735.25 },
+    ],
+  },
 ];
 
 
@@ -198,8 +228,6 @@ const REVIEWS = [
    A ticker appears once, under its first mention; `also` records the other hat. */
 const QUEUE = [
   { theme:"Trades operators", note:"How skilled-labour businesses actually behave", rows:[
-    { ticker:"FIX",  company:"Comfort Systems USA", why:"Best public commercial MEP roll-up analogue" },
-    { ticker:"EME",  company:"EMCOR Group",         why:"$17bn-scale electrical/mechanical/facilities operator" },
     { ticker:"APG",  company:"APi Group",           why:"Inspection \u2192 recurring service flywheel" },
     { ticker:"LMB",  company:"Limbach Holdings",    why:"Commercial MEPC + owner-direct recurring service strategy" },
     { ticker:"PWR",  company:"Quanta Services",     why:"Massive skilled-trade workforce serving utilities" },

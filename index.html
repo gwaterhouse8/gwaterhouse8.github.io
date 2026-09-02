@@ -55,6 +55,32 @@
         border:1px solid var(--line); border-radius:6px; padding:6px 8px; margin:6px 0 2px;
         word-break:break-all; user-select:all; cursor:text;
         font-family:Consolas, ui-monospace, monospace;}
+  /* --- public company reviews --- */
+  .revgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px;}
+  .card.rev{min-height:auto; gap:7px;}
+  .rev .top{justify-content:space-between; align-items:flex-start;}
+  .rev .tick{font:650 17px/1.1 Consolas, ui-monospace, monospace; letter-spacing:.02em;}
+  .rev .call{font-size:10px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+        padding:3px 8px; border-radius:6px; white-space:nowrap;}
+  .call-buy{background:#e2f1ea; color:#17845a;}
+  .call-hold{background:#f6eedd; color:#8a6212;}
+  .call-avoid{background:#f9e5e1; color:#bc3b22;}
+  .rev .nums{display:grid; grid-template-columns:auto auto 1fr; gap:14px; align-items:end;
+        border-top:1px solid var(--line); padding-top:9px; margin-top:3px;}
+  .rev .nl{font-size:9.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted);
+        display:block; margin-bottom:2px;}
+  .rev .nv{font:600 15px/1.15 Consolas, ui-monospace, monospace; font-variant-numeric:tabular-nums;}
+  .rev .nv small{font-weight:400; font-size:10.5px; color:var(--muted); display:block;
+        margin-top:2px; font-family:"Segoe UI", Calibri, sans-serif; letter-spacing:0;}
+  .rev .chg{font:700 16px/1.15 Consolas, ui-monospace, monospace; text-align:right;
+        font-variant-numeric:tabular-nums;}
+  .up{color:#17845a;} .down{color:#bc3b22;} .flat{color:var(--muted);}
+  @media (prefers-color-scheme: dark){
+    .call-buy{background:#13291f; color:#33a876;}
+    .call-hold{background:#2e2717; color:#c79b3e;}
+    .call-avoid{background:#341f1a; color:#e2664a;}
+    .up{color:#33a876;} .down{color:#e2664a;}
+  }
   .hidden{display:none !important;}
   footer{margin-top:44px; color:var(--muted); font-size:12px;}
   footer a{color:var(--navy);}
@@ -107,6 +133,29 @@ const SECTIONS = [
 
 /* Private section — AES-256-GCM ciphertext; the passphrase is NOT in this file.
    To change its contents, re-encrypt and replace this blob. */
+
+/* ---- Public company reviews -------------------------------------------
+   To add a new price mark, append to `marks` (newest last) and Pages
+   redeploys in ~1 min. To add a company, copy a block.
+   `entry` is the tracked baseline: the verified close on the pitch date.  */
+const REVIEWS = [
+  {
+    ticker: "FTDR",
+    company: "Frontdoor / American Home Shield",
+    exchange: "Nasdaq",
+    call: "Hold",
+    pitched: "2026-09-01",
+    entry: 79.51,
+    entryNote: "1 Sep 2026 close",
+    fair: "$75–85",
+    thesis: "Fair value $75–85 vs $79.51. Facts check out; the 11.5\u00d7 multiple doesn't.",
+    url: "https://claude.ai/code/artifact/ed5e5e36-00e2-4e0f-b783-f997d71dcbee",
+    marks: [
+      { d: "2026-09-01", p: 79.51 },
+    ],
+  },
+];
+
 const PRIVATE_ENC = {
   salt: "l4eHoQ3e+GEI8OS5vHLh/A==",
   iv:   "CB8XQjhFUp+8Yuot",
@@ -152,8 +201,82 @@ function renderSection(sec){
   return wrap;
 }
 
+/* Reviews render into the same host and reuse .card, so the delegated click
+   handler, the keyboard handler and the search filter all apply unchanged. */
+function fmtDate(iso){
+  const [y,m,d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y, m-1, d)).toLocaleDateString("en-GB",
+    { day:"numeric", month:"short", year:"2-digit", timeZone:"UTC" });
+}
+
+function renderReviews(list){
+  const wrap = document.createElement("section");
+  const h = document.createElement("h2");
+  h.textContent = "Public Company Reviews";
+  const grid = document.createElement("div");
+  grid.className = "revgrid";
+
+  for (const r of list){
+    const last = r.marks[r.marks.length - 1];
+    const pct  = ((last.p - r.entry) / r.entry) * 100;
+    const dir  = Math.abs(pct) < 0.05 ? "flat" : (pct > 0 ? "up" : "down");
+
+    const card = document.createElement("div");
+    card.className = "card rev";
+    card.tabIndex = 0;
+    card.dataset.url = r.url || "";
+    card.dataset.q = (r.ticker + " " + r.company + " " + r.call + " " + r.thesis).toLowerCase();
+
+    const top = document.createElement("div"); top.className = "top";
+    const tick = document.createElement("span"); tick.className = "tick"; tick.textContent = r.ticker;
+    const call = document.createElement("span");
+    call.className = "call call-" + r.call.toLowerCase();
+    call.textContent = r.call;
+    top.append(tick, call);
+
+    const co = document.createElement("div"); co.className = "desc";
+    co.textContent = r.company;
+
+    const th = document.createElement("div"); th.className = "desc";
+    th.textContent = r.thesis;
+
+    const nums = document.createElement("div"); nums.className = "nums";
+    nums.append(
+      numCell("Pitched", "$" + r.entry.toFixed(2), fmtDate(r.pitched)),
+      numCell("Last",    "$" + last.p.toFixed(2),  fmtDate(last.d)),
+    );
+    const chg = document.createElement("div");
+    chg.className = "chg " + dir;
+    chg.textContent = (pct > 0 ? "+" : "") + pct.toFixed(1) + "%";
+    nums.append(chg);
+
+    const foot = document.createElement("div"); foot.className = "foot";
+    const chip = document.createElement("span"); chip.className = "chip";
+    chip.textContent = "fair value " + r.fair + " \u00b7 full memo";
+    foot.append(chip);
+
+    card.append(top, co, th, nums, foot);
+    grid.append(card);
+  }
+  wrap.append(h, grid);
+  return wrap;
+}
+
+function numCell(label, value, sub){
+  const d = document.createElement("div");
+  const l = document.createElement("span"); l.className = "nl"; l.textContent = label;
+  const v = document.createElement("span"); v.className = "nv"; v.textContent = value;
+  const s = document.createElement("small"); s.textContent = sub;
+  v.append(s);
+  d.append(l, v);
+  return d;
+}
+
 const host = document.getElementById("sections");
-for (const sec of SECTIONS) host.append(renderSection(sec));
+for (const sec of SECTIONS){
+  host.append(renderSection(sec));
+  if (sec.title === "Startup") host.append(renderReviews(REVIEWS));
+}
 
 /* one delegated handler — no inline on* attributes; opens links in a NEW tab */
 /* Clipboard API needs a secure context + user gesture; execCommand is the

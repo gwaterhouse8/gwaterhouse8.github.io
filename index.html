@@ -162,12 +162,9 @@ const SECTIONS = [
   { title: "Work", blocks: [
     { icon:"🔥", name:"Forge",              desc:"CRM dashboard",                 url:"http://159.65.233.101:8081" },
     { icon:"📊", name:"Live Stats",         desc:"Team sourcing stats page",      url:"http://159.65.233.101:8081/stats" },
-    { icon:"📄", name:"Staffing Generator", desc:"CIM / teaser → staffing email", url:"http://159.65.233.101:8081/staffing" },
   ]},
   { title: "Startup", blocks: [
-    { icon:"📘", name:"Research Doc",   desc:"Living analysis doc",     url:"https://docs.google.com/document/d/1LzawmappKUFQSAg3QYs-XV9QyC-OHvArMudwC5uLndA/edit" },
     { icon:"🗂️", name:"Knowledge Base", desc:"Drive folder",            url:"https://drive.google.com/drive/folders/1ov_SQ9Fpvjl28216f6ZD82X72Y7Wi7Q6" },
-    { icon:"🧾", name:"Evidence Index", desc:"Master index of sources", url:"https://docs.google.com/document/d/1C8TodX-pjwgWMzFa1QIdIGdyYNQ-rhnF3sJNIsilVyQ/edit" },
   ]},
   { title: "Personal", blocks: [
     { icon:"🤝", name:"Network Intro",        desc:"LinkedIn intro app",     url:"https://networkintro.167.71.31.0.sslip.io" },
@@ -536,8 +533,11 @@ function queueRow(q, gid){
 const host = document.getElementById("sections");
 for (const sec of SECTIONS){
   host.append(renderSection(sec));
-  if (sec.title === "Startup") host.append(renderReviews(REVIEWS, QUEUE));
 }
+/* Public Company Reviews sit at the very bottom of the page. Unlocked private
+   sections insert ABOVE this node (see showPrivate) so it stays last whether
+   the page is locked or not. */
+host.append(renderReviews(REVIEWS, QUEUE));
 
 /* one delegated handler — no inline on* attributes; opens links in a NEW tab */
 /* Clipboard API needs a secure context + user gesture; execCommand is the
@@ -685,7 +685,8 @@ async function decryptPrivate(key){
   return JSON.parse(new TextDecoder().decode(pt));
 }
 function showPrivate(secs){
-  for (const s of secs){ const el = renderSection(s); el.classList.add("psec"); host.append(el); }
+  const tail = document.getElementById("revsec");  // keep reviews pinned last
+  for (const s of secs){ const el = renderSection(s); el.classList.add("psec"); host.insertBefore(el, tail); }
   privateOn = true; lockBtn.textContent = "🔓";
   panel.classList.add("hidden"); passIn.value = ""; unlockErr.textContent = "";
 }
